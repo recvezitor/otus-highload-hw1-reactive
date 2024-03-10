@@ -25,13 +25,17 @@ public class PersonRepository {
 
     public Uni<Person> create(Person request) {
         log.info("persisting request person={}", request);
-        var entity = request.withId(isNull(request.getId()) ? UUID.randomUUID() : request.getId());
         return pgPool.withTransaction(conn -> conn.preparedQuery("""
-                        INSERT INTO %s.person (id, first_name, second_name, birthdate, biography, city, created_at, password)
-                                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                        INSERT INTO %s.person (first_name, second_name, birthdate, biography, city, created_at, password)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                                    RETURNING id
                         """.formatted(SCHEMA_NAME))
-                .execute(map(entity))
-                .flatMap(e -> Uni.createFrom().item(entity)));
+                .execute(map(request))
+                .flatMap(rowSet -> {
+                    var entity = request.withId(rowSet.iterator().next().getUUID("id"));
+                    return Uni.createFrom().item(entity);
+                })
+        );
     }
 
 
@@ -50,7 +54,7 @@ public class PersonRepository {
                     for (Row row : rowSet) {
                         return Uni.createFrom().item(map(row));//return first item
                     }
-                    return Uni.createFrom().item(null);
+                    return Uni.createFrom().nullItem();
                 });
     }
 
@@ -69,7 +73,7 @@ public class PersonRepository {
                     for (Row row : rowSet) {
                         return Uni.createFrom().item(map(row));//return first item
                     }
-                    return Uni.createFrom().item(null);
+                    return Uni.createFrom().nullItem();
                 });
     }
 
@@ -89,7 +93,6 @@ public class PersonRepository {
 
     private Tuple map(Person request) {
         return Tuple.tuple()
-                .addUUID(isNull(request.getId()) ? UUID.randomUUID() : request.getId())//TODO delegate uuid generation to DB
                 .addString(request.getFirstName())
                 .addString(request.getSecondName())
                 .addLocalDate(request.getBirthdate())
