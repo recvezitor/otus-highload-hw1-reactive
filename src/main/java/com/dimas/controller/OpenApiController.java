@@ -13,13 +13,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
 @LogRequest
-public class OpenApiController implements DefaultReactiveApi {
+public class OpenApiController implements SecuredReactiveApi {
 
     private final PersonService personService;
     private final PersonMapper personMapper;
@@ -41,6 +42,11 @@ public class OpenApiController implements DefaultReactiveApi {
         var request = personMapper.map(apiUserRegisterPostRequest);
         return personService.create(request)
                 .map(person -> new ApiUserRegisterPost200Response().userId(person.getId().toString()));
+    }
+
+    @Override
+    public Uni<List<ApiUser>> userSearchGet(String firstName, String lastName) {
+        return personService.search(firstName, lastName);
     }
 
 }

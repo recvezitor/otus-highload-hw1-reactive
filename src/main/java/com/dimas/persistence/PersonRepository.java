@@ -11,10 +11,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.dimas.util.Const.SCHEMA_NAME;
-import static java.util.Objects.isNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -74,6 +75,24 @@ public class PersonRepository {
                         return Uni.createFrom().item(map(row));//return first item
                     }
                     return Uni.createFrom().nullItem();
+                });
+    }
+
+    public Uni<List<Person>> search(String firstName, String lastName) {//warn, no paging
+        final var query = """
+                select * from %s.person where lower(first_name) LIKE $1 AND lower(second_name) LIKE $2 LIMIT 10000
+                """.formatted(SCHEMA_NAME);
+        return pgPool.preparedQuery(query)
+                .execute(Tuple.tuple()
+                        .addString(firstName)
+                        .addString(lastName)
+                )
+                .onItem().transformToUni(rowSet -> {
+                    List<Person> result = new ArrayList<>();
+                    for (Row row : rowSet) {
+                        result.add(map(row));
+                    }
+                    return Uni.createFrom().item(result);
                 });
     }
 

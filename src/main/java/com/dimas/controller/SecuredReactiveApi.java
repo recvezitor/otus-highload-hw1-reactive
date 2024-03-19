@@ -1,5 +1,6 @@
 package com.dimas.controller;
 
+import com.dimas.controller.filter.Secured;
 import com.dimas.openapi.model.ApiLoginPost200Response;
 import com.dimas.openapi.model.ApiLoginPostRequest;
 import com.dimas.openapi.model.ApiUser;
@@ -14,11 +15,14 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+
+import java.util.List;
 
 
 @Path("")
 @ApplicationScoped
-public interface DefaultReactiveApi {
+public interface SecuredReactiveApi {
 
     /**
      * Упрощенный процесс аутентификации путем передачи идентификатор пользователя и получения токена для дальнейшего прохождения авторизации
@@ -41,6 +45,7 @@ public interface DefaultReactiveApi {
     @GET
     @Path("/user/get/{id}")
     @Produces({"application/json"})
+    @Secured
     Uni<ApiUser> userGetIdGet(
             @GeneratedParam("id") @PathParam("id") String id
     );
@@ -56,6 +61,21 @@ public interface DefaultReactiveApi {
     @Produces({"application/json"})
     Uni<ApiUserRegisterPost200Response> userRegisterPost(
             ApiUserRegisterPostRequest apiUserRegisterPostRequest
+    );
+
+    /**
+     * Поиск анкет
+     *
+     * @param firstName Условие поиска по имени
+     * @param lastName  Условие поиска по фамилии
+     */
+    @GET
+    @Path("/user/search")
+    @Produces({"application/json"})
+    @Secured
+    Uni<List<ApiUser>> userSearchGet(
+            @QueryParam("first_name") String firstName,
+            @QueryParam("last_name") String lastName
     );
 
 
