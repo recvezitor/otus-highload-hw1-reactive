@@ -84,8 +84,8 @@ public class PersonRepository {
                 """.formatted(SCHEMA_NAME);
         return pgPool.preparedQuery(query)
                 .execute(Tuple.tuple()
-                        .addString(firstName)
-                        .addString(lastName)
+                        .addString(firstName.toLowerCase() + "%")
+                        .addString(lastName.toLowerCase() + "%")
                 )
                 .onItem().transformToUni(rowSet -> {
                     List<Person> result = new ArrayList<>();
