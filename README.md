@@ -32,21 +32,9 @@ docker tag otus-highload-hw1-reactive:latest recvezitor/otus-highload-hw1-reacti
 docker login -> recvezitor/password
 docker push recvezitor/otus-highload-hw1-reactive:latest
 
+### pool
+SHOW max_connections;
+SELECT sum(numbackends) FROM pg_stat_database;
 
 ### TODO
-
-TODO
-
-- научиться форматировать лог чтобы он был фиксированной ширины
-  2024-03-09 14:55:41 INFO  [com.dim.lon.pck.bla] - messsage
-  2024-03-09 14:55:41 INFO  [com.dim.StartUp    ] - messsage
-- Понять нафиг нужен JBossLogManager
-- как уюрать кракозябры из лога jdbc
-  Caused by: org.postgresql.util.PSQLException: ������� firstName �� ������� � ���� ResultSet���.
-- По нормальному обрабатывать ошибки
-- Засунуть инициализацию БД внутрь образа
-- апнуть версию постгри до той где есть дефолтный uuid
-- забирать ответ бд при создании
 - использовать uuid с сортировкой
-- плейсхолдеры в постмане
-- нужна авторизация
